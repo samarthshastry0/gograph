@@ -1,10 +1,10 @@
 package main
 
-import {
+import (
 	"fmt"
 	"errors"
 	"context"
-}
+)
 
 type State struct {
 	Data map[string]any
@@ -22,13 +22,16 @@ type Graph struct {
 	entry string
 }
 
+const START = "__start__"
+const END = "__end__"
+
 func NewGraph() *Graph {
 	return &Graph{
 		Nodes: make(map[string]NodeFunc),
 		Edges: make(map[string]string),
 		condEdges: make(map[string]RouterFunc),
 		condEdgeMap: make(map[string]map[string]string),
-		entry: START
+		entry: START,
 	}
 }
 
@@ -48,9 +51,6 @@ func (g *Graph) AddConditionalEdge(from string, router RouterFunc, routes map[st
 	g.condEdges[from] = router
 	g.condEdgeMap[from] = routes
 }
-
-const START = "__start__"
-const END = "__end__"
 
 func (g *Graph) compile() error {
 	isNode := func(name string) bool {
@@ -188,7 +188,7 @@ func main() {
 		n++
 		s.Data["n"] = n
 		fmt.Println("n =", n)
-		return s
+		return s, nil
 	})
 
 	g.AddConditionalEdge("count", func(s State) string {
@@ -197,11 +197,14 @@ func main() {
 			return "count"
 		}
 		return END
+	}, map[string]string{
+		"count": "count",
+		"__end__": END,
 	})
 
 	g.SetEntry("count")
 
-	final, err := g.Run(State{Data: map[string]any{}})
+	final, err := g.Run(context.Background(), State{Data: map[string]any{"n": 0}})
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
