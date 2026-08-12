@@ -52,7 +52,7 @@ func (g *Graph) AddConditionalEdge(from string, router RouterFunc, routes map[st
 	g.condEdgeMap[from] = routes
 }
 
-func (g *Graph) compile() error {
+func (g *Graph) Compile() error {
 	isNode := func(name string) bool {
 		_, ok := g.Nodes[name]
 		return ok
@@ -118,7 +118,7 @@ func (g *Graph) compile() error {
 
 func (g *Graph) Run(ctx context.Context, initial State) (State, error) {
 
-	err := g.compile()
+	err := g.Compile()
 
 	if err != nil {
 		return initial, fmt.Errorf("graph compilation failed: %w", err)
@@ -194,15 +194,15 @@ func main() {
 	g.AddConditionalEdge("count", func(s State) string {
 		n, _ := s.Data["n"].(int)
 		if n < 100 {
-			return "count"
+			return "loop"
 		}
-		return END
+		return "done"
 	}, map[string]string{
-		"count": "count",
-		"__end__": END,
+		"loop": "count",
+		"done": END,
 	})
 
-	g.SetEntry("count")
+	g.AddEdge(START, "count")
 
 	final, err := g.Run(context.Background(), State{Data: map[string]any{"n": 0}})
 	if err != nil {
