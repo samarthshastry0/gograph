@@ -94,7 +94,7 @@ func (g *Graph) Compile() error {
 			errs = append(errs, fmt.Errorf("conditional edge from node %s has no valid routes", from))
 		}
 		if routes, ok := g.condEdgeMap[from]; ok {
-			for to := range routes {
+			for _, to := range routes {
 				if !isNode(to) && to != END {
 					errs = append(errs, fmt.Errorf("conditional edge from node %s to non-existent node: %s", from, to))
 				}
