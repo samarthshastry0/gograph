@@ -1,14 +1,16 @@
 package main
 
 import (
-	"fmt"
-	"errors"
 	"context"
+	"errors"
+	"fmt"
 )
 
 type State struct {
 	Data map[string]any
 }
+
+type Reducer func(existing, update any) any
 
 type NodeFunc func(context.Context, State) (State, error)
 
@@ -19,6 +21,7 @@ type Graph struct {
 	Edges map[string]string
 	condEdges map[string]RouterFunc
 	condEdgeMap map[string]map[string]string
+	channels map[string]Reducer
 	entry string
 }
 
@@ -31,6 +34,7 @@ func NewGraph() *Graph {
 		Edges: make(map[string]string),
 		condEdges: make(map[string]RouterFunc),
 		condEdgeMap: make(map[string]map[string]string),
+		channels: make(map[string]Reducer),
 		entry: START,
 	}
 }
@@ -50,6 +54,19 @@ func (g *Graph) SetEntry(name string) {
 func (g *Graph) AddConditionalEdge(from string, router RouterFunc, routes map[string]string) {
 	g.condEdges[from] = router
 	g.condEdgeMap[from] = routes
+}
+
+func (g *Graph) AddChannel(key string, r Reducer) {
+	g.channels[key] = r
+}
+
+func OverwriteReducer(existing, update any) any {
+	return update
+}
+
+func AppendReducer(existing, update any) any {
+    out, _ := existing.([]any)
+    return append(out, update.([]any)...)
 }
 
 func (g *Graph) Compile() error {
@@ -124,7 +141,7 @@ func (g *Graph) Run(ctx context.Context, initial State) (State, error) {
 		return initial, fmt.Errorf("graph compilation failed: %w", err)
 	}
 
-	current := g.entry
+	var current string = g.entry
 
 	if current == START {
 		next, ok := g.Edges[START]
@@ -146,7 +163,7 @@ func (g *Graph) Run(ctx context.Context, initial State) (State, error) {
 		if steps > maxSteps {
 			return state, fmt.Errorf("exceeded maximum steps (%d), possible infinite loop", maxSteps)
 		}
-	
+
 		node, ok := g.Nodes[current]
 		if !ok {
 			return state, fmt.Errorf("node not found: %s", current)
@@ -155,7 +172,13 @@ func (g *Graph) Run(ctx context.Context, initial State) (State, error) {
 		if err != nil {
 			return state, fmt.Errorf("error occurred while processing node %s: %w", current, err)
 		}
-		state = newState
+		for key, update := range newState.Data {
+			reducer, ok := g.channels[key]
+			if !ok {
+				reducer = OverwriteReducer
+			}
+			state.Data[key] = reducer(state.Data[key], update)
+		}
 
 		if router, ok := g.condEdges[current]; ok {
 			label := router(state)
@@ -183,30 +206,43 @@ func (g *Graph) Run(ctx context.Context, initial State) (State, error) {
 func main() {
 	g := NewGraph()
 
-	g.AddNode("count", func(ctx context.Context, s State) (State, error) {
-		n, _ := s.Data["n"].(int)
-		n++
-		s.Data["n"] = n
-		fmt.Println("n =", n)
-		return s, nil
+	g.AddChannel("messages", AppendReducer)
+
+	g.AddNode("greet", func(ctx context.Context, s State) (State, error) {
+		return State{Data: map[string]any{
+			"messages": []any{"greet: hello"},
+			"step":     1,
+		}}, nil
 	})
 
-	g.AddConditionalEdge("count", func(s State) string {
-		n, _ := s.Data["n"].(int)
-		if n < 100 {
-			return "loop"
-		}
-		return "done"
-	}, map[string]string{
-		"loop": "count",
-		"done": END,
+	g.AddNode("ask", func(ctx context.Context, s State) (State, error) {
+		return State{Data: map[string]any{
+			"messages": []any{"ask: how are you?"},
+			"step":     2,
+		}}, nil
 	})
 
-	g.AddEdge(START, "count")
+	g.AddNode("farewell", func(ctx context.Context, s State) (State, error) {
+		return State{Data: map[string]any{
+			"messages": []any{"farewell: goodbye"},
+			"step":     3,
+		}}, nil
+	})
 
-	final, err := g.Run(context.Background(), State{Data: map[string]any{"n": 0}})
+	g.AddEdge(START, "greet")
+	g.AddEdge("greet", "ask")
+	g.AddEdge("ask", "farewell")
+	g.AddEdge("farewell", END)
+
+	final, err := g.Run(context.Background(), State{Data: map[string]any{}})
 	if err != nil {
 		fmt.Println("Error:", err)
+		return
 	}
-	fmt.Println("Final n:", final.Data["n"])
+
+	fmt.Println("messages (append reducer accumulates every node's update):")
+	for _, m := range final.Data["messages"].([]any) {
+		fmt.Println("  -", m)
+	}
+	fmt.Println("step (overwrite reducer keeps only the last value):", final.Data["step"])
 }
