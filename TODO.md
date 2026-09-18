@@ -2,27 +2,27 @@
 
 ## Phase 3 — Parallel super-steps (Pregel model)
 
-- [ ] Change `Edges` from `map[string]string` to `map[string][]string` and update `NewGraph` to initialize it with `make(map[string][]string)`.
-- [ ] Update `AddEdge` to append targets instead of overwriting previous targets.
-- [ ] Update `Compile()` to iterate over `for from, tos := range g.Edges` and validate each target in the slice.
-- [ ] Handle the `START` edge specially: `len == 0` means no outgoing edges, otherwise validate each target individually.
-- [ ] Rewrite `Run` to use a frontier-based super-step loop instead of a single `current` node.
-- [ ] Seed the frontier with `Edges[START]` when the entry is `START`; otherwise start with `[]string{entry}`.
-- [ ] Add `ctx.Err()` and `maxSteps` checks within the frontier loop to stop on cancellation or step limit.
-- [ ] Run each frontier node concurrently with a goroutine per node, `sync.WaitGroup`, and a pre-sized `results` slice keyed by index.
-- [ ] Pass `i, name, node` as explicit function parameters to avoid closure capture.
-- [ ] Ensure all goroutines read from the same read-only snapshot of state.
-- [ ] Capture execution errors into `results[i]` and then wait for all goroutines to finish.
-- [ ] Scan results for the first error and return it immediately after `wg.Wait()`.
-- [ ] Merge all deltas at the barrier in a single-threaded pass.
-- [ ] Apply per-key reducer logic using `channels[key]` and default to overwrite when absent.
-- [ ] Keep state mutation isolated: nodes must never mutate the input state; return a fresh delta map each time.
-- [ ] Compute the next frontier from all executed nodes using conditional routes or static edges.
-- [ ] Skip `END` nodes when building the next frontier.
-- [ ] Deduplicate the next frontier with a `map[string]bool` so fan-in only runs each node once per super-step.
-- [ ] Add the required `sync` import.
-- [ ] Verify the demo graph: `START -> dispatch -> {worker1, worker2, worker3} -> join -> END`.
-- [ ] Confirm behavior: `messages` uses append, `done` uses add, and worker execution order is nondeterministic but valid.
+- [Done] Change `Edges` from `map[string]string` to `map[string][]string` and update `NewGraph` to initialize it with `make(map[string][]string)`.
+- [Done] Update `AddEdge` to append targets instead of overwriting previous targets.
+- [Done] Update `Compile()` to iterate over `for from, tos := range g.Edges` and validate each target in the slice.
+- [Done] Handle the `START` edge specially: `len == 0` means no outgoing edges, otherwise validate each target individually.
+- [Done] Rewrite `Run` to use a frontier-based super-step loop instead of a single `current` node.
+- [Done] Seed the frontier with `Edges[START]` when the entry is `START`; otherwise start with `[]string{entry}`.
+- [Done] Add `ctx.Err()` and `maxSteps` checks within the frontier loop to stop on cancellation or step limit.
+- [Done] Run each frontier node concurrently with a goroutine per node, `sync.WaitGroup`, and a pre-sized `results` slice keyed by index.
+- [Done] Pass `i, name, node` as explicit function parameters to avoid closure capture.
+- [Done] Ensure all goroutines read from the same read-only snapshot of state.
+- [Done] Capture execution errors into `results[i]` and then wait for all goroutines to finish.
+- [Done] Scan results for the first error and return it immediately after `wg.Wait()`.
+- [Done] Merge all deltas at the barrier in a single-threaded pass.
+- [Done] Apply per-key reducer logic using `channels[key]` and default to overwrite when absent.
+- [Done] Keep state mutation isolated: nodes must never mutate the input state; return a fresh delta map each time.
+- [Done] Compute the next frontier from all executed nodes using conditional routes or static edges.
+- [Done] Skip `END` nodes when building the next frontier.
+- [Done] Deduplicate the next frontier with a `map[string]bool` so fan-in only runs each node once per super-step.
+- [Done] Add the required `sync` import.
+- [Done] Verify the demo graph: `START -> dispatch -> {worker1, worker2, worker3} -> join -> END`.
+- [Done] Confirm behavior: `messages` uses append, `done` uses add, and worker execution order is nondeterministic but valid.
 
 ## Phase 4 — Serialization & node registry (UI enabler)
 
