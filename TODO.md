@@ -26,29 +26,29 @@
 
 ## Phase 4 — Serialization & node registry (UI enabler)
 
-- [ ] Add a `reducerRegistry map[string]Reducer` with built-ins such as `"overwrite"`, `"append"`, and `"add"`.
-- [ ] Add `NodeFactory func(config map[string]any) (NodeFunc, error)` and a `nodeRegistry` for named node types.
-- [ ] Add `RegisterNodeType` to register a factory by type name.
-- [ ] Add `routerRegistry` and `RegisterRouter` support.
-- [ ] Define JSON-spec structs with proper tags:
+- [Done] Add a `reducerRegistry map[string]Reducer` with built-ins such as `"overwrite"`, `"append"`, and `"add"`.
+- [Done] Add `NodeFactory func(config map[string]any) (NodeFunc, error)` and a `nodeRegistry` for named node types.
+- [Done] Add `RegisterNodeType` to register a factory by type name.
+- [Done] Add `routerRegistry` and `RegisterRouter` support.
+- [Done] Define JSON-spec structs with proper tags:
   - `GraphSpec{Entry, Nodes, Edges, CondEdges, Channels}`
   - `NodeSpec{ID, Type, Config}`
   - `EdgeSpec`
   - `CondSpec{From, Router, Routes}`
   - `ChannelSpec{Key, Reducer}`
-- [ ] Remember the distinction between `ID` (unique graph node name) and `Type` (registered behavior).
-- [ ] Implement `BuildGraph(spec) (*Graph, error)`.
-- [ ] Resolve all node names and types against the registries.
-- [ ] Reuse existing `Add*` helpers while building the graph.
-- [ ] Return clear validation errors for unknown names, duplicate IDs, and invalid registrations.
-- [ ] Implement `LoadGraph(data []byte)` using `json.Unmarshal` followed by `BuildGraph`.
-- [ ] Validate the Phase 3 demo as JSON and confirm `LoadGraph` + `Run` matches the equivalent hand-written graph.
-- [ ] Handle JSON number conversions carefully, especially `float64` in factory config values.
+- [Done] Remember the distinction between `ID` (unique graph node name) and `Type` (registered behavior).
+- [Done] Implement `BuildGraph(spec) (*Graph, error)`.
+- [Done] Resolve all node names and types against the registries.
+- [Done] Reuse existing `Add*` helpers while building the graph.
+- [Done] Return clear validation errors for unknown names, duplicate IDs, and invalid registrations.
+- [Done] Implement `LoadGraph(data []byte)` using `json.Unmarshal` followed by `BuildGraph`.
+- [Done] Validate the Phase 3 demo as JSON and confirm `LoadGraph` + `Run` matches the equivalent hand-written graph.
+- [Done] Handle JSON number conversions carefully, especially `float64` in factory config values.
 
 ## Phase 5 — HTTP/WebSocket API + streaming
 
-- [ ] Add `Stream(ctx, initial) <-chan StepEvent` to emit one `StepEvent` per super-step.
-- [ ] Define `StepEvent{Step, Active, State}` and ensure it reflects the active frontier and current state.
+- [Done] Add `Stream(ctx, initial) <-chan StepEvent` to emit one `StepEvent` per super-step.
+- [Done] Define `StepEvent{Step, Active, State}` and ensure it reflects the active frontier and current state.
 - [ ] Add `net/http` endpoints:
   - `POST /graph/validate` to call `Compile()`
   - `POST /graph/run` to call `LoadGraph` + `Run`
