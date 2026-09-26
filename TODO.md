@@ -49,12 +49,12 @@
 
 - [Done] Add `Stream(ctx, initial) <-chan StepEvent` to emit one `StepEvent` per super-step.
 - [Done] Define `StepEvent{Step, Active, State}` and ensure it reflects the active frontier and current state.
-- [ ] Add `net/http` endpoints:
+- [Done] Add `net/http` endpoints:
   - `POST /graph/validate` to call `Compile()`
   - `POST /graph/run` to call `LoadGraph` + `Run`
-- [ ] Add a live streaming endpoint using SSE or WebSocket to emit `StepEvent`s during execution.
-- [ ] Configure CORS for the frontend.
-- [ ] Validate the endpoint behavior by exercising the Phase 3 demo through the API.
+- [Done] Add a live streaming endpoint using SSE or WebSocket to emit `StepEvent`s during execution.
+- [Done] Configure CORS for the frontend.
+- [Done] Validate the endpoint behavior by exercising the Phase 3 demo through the API.
 
 ## Phase 6 — Frontend UI (drag-and-drop)
 
