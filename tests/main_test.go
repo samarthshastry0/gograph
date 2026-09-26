@@ -1,4 +1,4 @@
-package main
+package tests
 
 import (
 	"context"
@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	. "gograph"
 )
 
 func phase4Worker(name string) NodeFunc {
