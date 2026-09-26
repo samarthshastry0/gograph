@@ -1,0 +1,27 @@
+{
+  "graph": {
+    "entry": "__start__",
+    "nodes": [
+      {"id": "dispatch", "type": "dispatch", "config": {}},
+      {"id": "Race Car1", "type": "race_car", "config": {"name": "Race Car1"}},
+      {"id": "Race Car2", "type": "race_car", "config": {"name": "Race Car2"}},
+      {"id": "Race Car3", "type": "race_car", "config": {"name": "Race Car3"}},
+      {"id": "join", "type": "join", "config": {}}
+    ],
+    "edges": [
+      {"from": "__start__", "to": "dispatch"},
+      {"from": "dispatch", "to": "Race Car1"},
+      {"from": "dispatch", "to": "Race Car2"},
+      {"from": "dispatch", "to": "Race Car3"},
+      {"from": "Race Car1", "to": "join"},
+      {"from": "Race Car2", "to": "join"},
+      {"from": "Race Car3", "to": "join"},
+      {"from": "join", "to": "__end__"}
+    ],
+    "channels": [
+      {"key": "messages", "reducer": "append"},
+      {"key": "done", "reducer": "add"}
+    ]
+  },
+  "initial": {"data": {}}
+}
