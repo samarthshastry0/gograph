@@ -58,13 +58,13 @@
 
 ## Phase 6 — Frontend UI (drag-and-drop)
 
-- [ ] Set up a frontend structure under `/graph`, `/registry`, `/server`, and `/web`.
-- [ ] Use React + React Flow for the canvas editor.
-- [ ] Populate the node palette from the registered node types.
-- [ ] Serialize canvas state into the Phase 4 JSON graph spec.
-- [ ] Submit serialized graphs to `POST /graph/run`.
-- [ ] Highlight the active frontier in the live stream as execution progresses.
-- [ ] Verify the browser-based demo matches the JSON-driven graph execution results.
+- [Done] Set up a frontend structure under `/graph`, `/registry`, `/server`, and `/web`.
+- [Done] Use React + React Flow for the canvas editor.
+- [Done] Populate the node palette from the registered node types.
+- [Done] Serialize canvas state into the Phase 4 JSON graph spec.
+- [Done] Submit serialized graphs to `POST /graph/run`.
+- [Done] Highlight the active frontier in the live stream as execution progresses.
+- [Done] Verify the browser-based demo matches the JSON-driven graph execution results.
 
 ## Phase 7 — Durability & polish
 

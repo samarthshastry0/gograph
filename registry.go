@@ -3,6 +3,7 @@ package gograph
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -16,6 +17,15 @@ var reducerRegistry = map[string]Reducer{
 
 var nodeRegistry = map[string]NodeFactory{}
 var routerRegistry = map[string]RouterFunc{}
+
+func RegisteredNodeTypes() []string {
+	types := make([]string, 0, len(nodeRegistry))
+	for name := range nodeRegistry {
+		types = append(types, name)
+	}
+	sort.Strings(types)
+	return types
+}
 
 func OverwriteReducer(existing, update any) any {
 	return update

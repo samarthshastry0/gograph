@@ -96,6 +96,34 @@ func TestValidateEndpointSuccess(t *testing.T) {
 	}
 }
 
+func TestRegisteredNodeTypesEndpoint(t *testing.T) {
+	ensureDemoTypes(t)
+	request := httptest.NewRequest(http.MethodGet, "/registry/nodes", nil)
+	recorder := httptest.NewRecorder()
+
+	NewServer().ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d; body = %s", recorder.Code, http.StatusOK, recorder.Body.String())
+	}
+
+	var response struct {
+		Types []string `json:"types"`
+	}
+	if err := json.Unmarshal(recorder.Body.Bytes(), &response); err != nil {
+		t.Fatal(err)
+	}
+	registered := make(map[string]bool, len(response.Types))
+	for _, nodeType := range response.Types {
+		registered[nodeType] = true
+	}
+	for _, nodeType := range []string{"dispatch", "join", "race_car"} {
+		if !registered[nodeType] {
+			t.Errorf("types = %v, missing %q", response.Types, nodeType)
+		}
+	}
+}
+
 func TestValidateEndpointFailure(t *testing.T) {
 	request := httptest.NewRequest(http.MethodPost, "/graph/validate", strings.NewReader(`{"entry":"__start__","nodes":[],"edges":[]}`))
 	recorder := httptest.NewRecorder()

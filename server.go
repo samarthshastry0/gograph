@@ -37,11 +37,26 @@ func withCORS(next http.Handler) http.Handler {
 
 func NewServer() http.Handler {
 	mux := http.NewServeMux()
+	mux.HandleFunc("/registry/nodes", handleRegisteredNodeTypes)
 	mux.HandleFunc("/graph/validate", handleValidate)
 	mux.HandleFunc("/graph/run", handleRun)
 	mux.HandleFunc("/graph/stream", handleStream)
+	mux.Handle("/", http.FileServer(http.Dir("web/dist")))
 
 	return withCORS(mux)
+}
+
+func handleRegisteredNodeTypes(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]any{
+			"error": "method not allowed",
+		})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{
+		"types": RegisteredNodeTypes(),
+	})
 }
 
 func handleValidate(w http.ResponseWriter, r *http.Request) {
